@@ -18,6 +18,30 @@ class FSPOSTTagger:
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found: {model_path}")
 
+    def parse(self, output: str) -> list[tuple[str, str]]:
+
+        parsed = []
+
+        for line in output.splitlines():
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            # Each line may contain multiple word|tag pairs
+            for pair in line.split():
+
+                if "|" not in pair:
+                    print(f"Skipping malformed output: {pair}")
+                    continue
+
+                word, tag = pair.rsplit("|", 1)
+
+                parsed.append((word, tag))
+
+        return parsed
+
     def tag(self, tokens: list[TaggedToken]) -> list[TaggedToken]:
 
         if not tokens:
@@ -28,13 +52,15 @@ class FSPOSTTagger:
         with tempfile.NamedTemporaryFile(
             mode="w+",
             delete=False,
-            suffix=".txt"
+            suffix=".txt",
+            encoding="utf-8"
         ) as temp_file:
 
             temp_file.write(sentence)
             temp_file_path = temp_file.name
 
         try:
+
             command = [
                 "java",
                 "-mx1g",
@@ -47,36 +73,47 @@ class FSPOSTTagger:
                 temp_file_path
             ]
 
-            process = subprocess.Popen(
+            process = subprocess.run(
                 command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
+                capture_output=True,
+                text=True,
+                encoding="utf-8"
             )
 
-            output, error = process.communicate()
-
             if process.returncode != 0:
-                raise RuntimeError(f"Tagger failed: {error}")
+                raise RuntimeError(process.stderr)
 
-            tagged_output = output.strip().split()
+            parsed = self.parse(process.stdout)
 
-            parsed = []
+            # ---------- Alignment Check ----------
+            if len(parsed) != len(tokens):
 
-            for item in tagged_output:
+                print("\n========== ALIGNMENT ERROR ==========")
+                print("Sentence:")
+                print(sentence)
+                print()
 
-                if "|" not in item:
-                    continue
+                print(f"Input Tokens : {len(tokens)}")
+                print(f"Parsed Tokens: {len(parsed)}")
 
-                word, tag = item.rsplit("|", 1)
+                print("\nJava Output:")
+                print(process.stdout)
 
-                parsed.append((word, tag))
+                print("=====================================\n")
 
-            # ALIGN back to original tokens
-            for token, (_, tag) in zip(tokens, parsed):
-                token.mgnn_tag = tag
+            # ---------- Assign Tags ----------
+
+            for i, token in enumerate(tokens):
+
+                if i < len(parsed):
+
+                    token.mgnn_tag = parsed[i][1]
+
+                else:
+                    token.mgnn_tag = None
 
             return tokens
 
         finally:
+
             os.unlink(temp_file_path)

@@ -19,6 +19,7 @@ class HybridPOSTagger:
 
         self.en = EnglishPOSTagger()
 
+    
     def tag(self, sentence):
 
         tokens = tokenize(sentence)
