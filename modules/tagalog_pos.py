@@ -2,7 +2,8 @@ import subprocess
 import tempfile
 import os
 
-from modules.token_types import TaggedToken
+from modules.token_types import TaggedToken, JavaTaggedToken
+from modules.alignment import align
 
 
 class FSPOSTTagger:
@@ -18,7 +19,11 @@ class FSPOSTTagger:
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found: {model_path}")
 
-    def parse(self, output: str) -> list[tuple[str, str]]:
+    # ---------------------------------------------------------
+    # Parse Java output
+    # ---------------------------------------------------------
+
+    def parse(self, output: str) -> list[JavaTaggedToken]:
 
         parsed = []
 
@@ -29,18 +34,32 @@ class FSPOSTTagger:
             if not line:
                 continue
 
-            # Each line may contain multiple word|tag pairs
             for pair in line.split():
 
                 if "|" not in pair:
-                    print(f"Skipping malformed output: {pair}")
+                    print("Skipping malformed output:", repr(pair))
                     continue
 
-                word, tag = pair.rsplit("|", 1)
+                try:
 
-                parsed.append((word, tag))
+                    word, tag = pair.rsplit("|", 1)
+
+                    parsed.append(
+                        JavaTaggedToken(
+                            token=word,
+                            tag=tag
+                        )
+                    )
+
+                except ValueError:
+
+                    print("Malformed pair:", repr(pair))
 
         return parsed
+
+    # ---------------------------------------------------------
+    # Tag sentence
+    # ---------------------------------------------------------
 
     def tag(self, tokens: list[TaggedToken]) -> list[TaggedToken]:
 
@@ -83,34 +102,35 @@ class FSPOSTTagger:
             if process.returncode != 0:
                 raise RuntimeError(process.stderr)
 
+            # -------------------------------------------------
+            # DEBUG
+            # -------------------------------------------------
+
+            # Uncomment this temporarily
+            # print(repr(process.stdout))
+
             parsed = self.parse(process.stdout)
 
-            # ---------- Alignment Check ----------
-            if len(parsed) != len(tokens):
+            success = align(tokens, parsed)
+
+            if not success:
 
                 print("\n========== ALIGNMENT ERROR ==========")
                 print("Sentence:")
                 print(sentence)
+
                 print()
 
-                print(f"Input Tokens : {len(tokens)}")
-                print(f"Parsed Tokens: {len(parsed)}")
+                print("Input Tokens :", len(tokens))
+                print("Parsed Tokens:", len(parsed))
 
-                print("\nJava Output:")
+                print("\nRaw Java Output:")
+                print(repr(process.stdout))
+
+                print("\nReadable Java Output:")
                 print(process.stdout)
 
                 print("=====================================\n")
-
-            # ---------- Assign Tags ----------
-
-            for i, token in enumerate(tokens):
-
-                if i < len(parsed):
-
-                    token.mgnn_tag = parsed[i][1]
-
-                else:
-                    token.mgnn_tag = None
 
             return tokens
 
