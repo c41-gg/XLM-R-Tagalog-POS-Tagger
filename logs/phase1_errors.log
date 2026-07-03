@@ -1,0 +1,17 @@
+[ERROR] ILALAGAY KO LANG PO ITO UPANG MAGTANDA OK ISA PA PO O.A . | Loading default properties from tagger Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger
+Loading POS tagger from Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger ... done [0.4 sec].
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at edu.stanford.nlp.sequences.ExactBestSequenceFinder.bestSequence(ExactBestSequenceFinder.java:130)
+	at edu.stanford.nlp.sequences.ExactBestSequenceFinder.bestSequence(ExactBestSequenceFinder.java:37)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.runTagInference(TestSentence.java:341)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.testTagInference(TestSentence.java:328)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.tagSentence(TestSentence.java:151)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagSentence(MaxentTagger.java:1044)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagCoreLabelsOrHasWords(MaxentTagger.java:1835)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagAndOutputSentence(MaxentTagger.java:1845)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1756)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1817)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1590)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1546)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.main(MaxentTagger.java:1889)
+

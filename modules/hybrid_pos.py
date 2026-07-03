@@ -22,6 +22,8 @@ class HybridPOSTagger:
     
     def tag(self, sentence):
 
+        print(repr(sentence))
+
         tokens = tokenize(sentence)
 
         self.tl.tag(tokens)

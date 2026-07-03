@@ -58,13 +58,31 @@ class FSPOSTTagger:
         return parsed
 
     # ---------------------------------------------------------
+    # validate tokens
+    # ---------------------------------------------------------
+
+    def validate_tokens(self, tokens):
+
+        for token in tokens:
+
+            if token.token == "":
+                print("Empty token!")
+
+            if token.token.isspace():
+                print("Whitespace token!")
+    
+    # ---------------------------------------------------------
     # Tag sentence
     # ---------------------------------------------------------
+
+
 
     def tag(self, tokens: list[TaggedToken]) -> list[TaggedToken]:
 
         if not tokens:
             return tokens
+        
+        self.validate_tokens(tokens)
 
         sentence = " ".join(t.token for t in tokens)
 

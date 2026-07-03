@@ -2,7 +2,9 @@ import re
 from modules.token_types import TaggedToken
 
 TOKEN_PATTERN = re.compile(
-    r"\w+(?:[-']\w+)*|[^\w\s]",
+    r"\.\.\.|"
+    r"\w+(?:[-']\w+)*|"
+    r"[^\w\s]",
     re.UNICODE
 )
 
@@ -26,7 +28,7 @@ def detokenize(tokens: list[TaggedToken]) -> str:
         if not sentence:
             sentence = word
 
-        elif re.fullmatch(r"[^\w\s]", word):
+        elif re.fullmatch(r"[^\w\s]+", word):
             sentence += word
 
         else:

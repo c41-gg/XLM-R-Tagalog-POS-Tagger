@@ -1,3 +1,4 @@
+import regex as re
 from modules.token_types import TaggedToken, JavaTaggedToken
 
 # ------------------------------------------------------------
@@ -20,6 +21,7 @@ PUNCT_TAGS = {
 SECONDARY_TAGS = {
     "t": "CCA",   # at
     "y": "LM",    # ay
+    "s": "PRSP",  # 's
 }
 
 
@@ -33,13 +35,20 @@ def normalize(text: str) -> str:
         text.lower()
             .replace("-lrb-", "(")
             .replace("-rrb-", ")")
+            .replace("-lsb-", "[")
+            .replace("-rsb-", "]")
             .replace("``", "\"")
             .replace("''", "\"")
             .replace("`", "'")
             .replace("’", "'")
             .replace("‘", "'")
             .replace("…", "...")
+            .replace("“", '"')
+            .replace("”", '"')
+            
+            
     )
+
 
 
 # ------------------------------------------------------------
@@ -78,10 +87,12 @@ def contraction_rule(
     if candidate != normalize(original.token):
         return None
 
+    suffix_tag = SECONDARY_TAGS[suffix]
+
     tag = first.tag
 
-    if "_" not in tag:
-        tag = f"{tag}_{SECONDARY_TAGS[suffix]}"
+    if suffix_tag and "_" not in tag:
+        tag = f"{tag}_{suffix_tag}"
 
     return tag, j + 3
 
@@ -127,24 +138,47 @@ def dropped_vowel_rule(
 # Generic merge fallback
 # ------------------------------------------------------------
 
+def leading_apostrophe_rule(original, java_tokens, j):
+
+    if j + 1 >= len(java_tokens):
+        return None
+
+    if normalize(java_tokens[j].token) != "'":
+        return None
+
+    candidate = "'" + normalize(java_tokens[j + 1].token)
+
+    if candidate != normalize(original.token):
+        return None
+
+    return java_tokens[j + 1].tag, j + 2
+
+
 def generic_merge(
     original: TaggedToken,
     java_tokens: list[JavaTaggedToken],
     j: int
 ):
-
-    target = normalize(original.token)
+    target = normalize(original.token).replace(" ", "")
 
     merged = ""
     primary_tag = None
 
     start = j
+    MAX_MERGE = 5
 
-    while j < len(java_tokens):
+    while j < len(java_tokens) and j - start < MAX_MERGE:
 
         jt = java_tokens[j]
 
-        merged += normalize(jt.token)
+        piece = normalize(jt.token)
+
+        if piece in {"'", '"'}:
+            merged += piece
+        elif jt.tag in PUNCT_TAGS:
+            merged += piece
+        else:
+            merged += piece
 
         if primary_tag is None and jt.tag not in PUNCT_TAGS:
             primary_tag = jt.tag
@@ -159,6 +193,23 @@ def generic_merge(
 
     return None
 
+# ------------------------------------------------------------
+# Ingnorables
+# ------------------------------------------------------------
+
+def is_emoji(token: str) -> bool:
+    return bool(re.fullmatch(r"\p{Extended_Pictographic}+", token))
+
+def ignorable(token: str):
+    if token in {
+        "\u200b",
+        "\u200c",
+        "\u200d",
+        "\ufeff",
+    }:
+        return True
+
+    return False
 
 # ------------------------------------------------------------
 # Main aligner
@@ -173,11 +224,26 @@ def align(
     j = 0
 
     while i < len(original_tokens):
+        
 
         if j >= len(java_tokens):
             return False
 
         original = original_tokens[i]
+
+        # ----------------------------------------------------
+        # Ignored
+        # ----------------------------------------------------
+
+        if is_emoji(original.token):
+            original.mgnn_tag = "EMOJI"
+            i += 1
+            continue  
+
+        if ignorable(original.token):
+            original.mgnn_tag = "IGNORED"
+            i += 1
+            continue     
 
         # ----------------------------------------------------
         # Exact match
@@ -238,6 +304,18 @@ def align(
         # Generic merge
         # ----------------------------------------------------
 
+        result = leading_apostrophe_rule(
+            original,
+            java_tokens,
+            j
+        )
+
+        if result:
+            tag, j = result
+            original.mgnn_tag = tag
+            i += 1
+            continue
+
         result = generic_merge(
             original,
             java_tokens,
@@ -252,6 +330,7 @@ def align(
 
             i += 1
             continue
+
 
         # ----------------------------------------------------
         # Failed

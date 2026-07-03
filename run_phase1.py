@@ -1,14 +1,14 @@
 """
 Use case:
 python run_phase1.py `
-  --input data/processed/corpus_clean1.txt `
-  --output data/processed/phase1_2.jsonl `
+  --input data/processed/corpus_clean2.txt `
+  --output data/processed/phase1_6.jsonl `
   --java-jar Library/FSPOST/stanford-postagger.jar `
   --tagalog-model Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger `
   --batch-size 50 `
   --max-sentence-len 60 `
   --num-workers 4 `
-  --target-sentences 5000
+  --target-sentences 100
 
 """
 
