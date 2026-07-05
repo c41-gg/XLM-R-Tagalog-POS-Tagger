@@ -26,6 +26,7 @@ class DatasetProfiler:
         self.category_counter = Counter()
         self.subtype_counter = Counter()
         self.focus_counter = Counter()
+        self.degree_counter = Counter()
         self.ligature_count = 0
 
         self.unresolved_counter = Counter()  # tag -> count of tokens hitting it
@@ -46,13 +47,14 @@ class DatasetProfiler:
 
         has_stored = all(
             key in item for key in
-            ("categories", "subtypes", "focuses", "ligatures")
+            ("categories", "subtypes", "focuses", "degree", "ligatures")
         )
 
         computed = decompose(label)
         computed_category = computed.category
         computed_subtype = computed.subtype
         computed_focus = computed.focus
+        computed_degree = computed.degree
         computed_ligature = computed.ligature
 
         if computed.unknown_parts:
@@ -66,17 +68,18 @@ class DatasetProfiler:
             category = item["categories"][i]
             subtype = item["subtypes"][i]
             focus = item["focuses"][i]
+            degree = item["degree"][i]
             ligature = item["ligatures"][i]
 
-            if (category, subtype, focus, ligature) != (
+            if (category, subtype, focus, degree, ligature) != (
                 computed_category, computed_subtype,
-                computed_focus, computed_ligature
+                computed_focus, computed_degree, computed_ligature
             ):
                 self.decomposition_mismatches += 1
 
-            return category, subtype, focus, ligature
+            return category, subtype, focus, degree, ligature
 
-        return computed_category, computed_subtype, computed_focus, computed_ligature
+        return computed_category, computed_subtype, computed_focus, computed_degree, computed_ligature
 
     def profile(self):
 
@@ -114,7 +117,7 @@ class DatasetProfiler:
                         self.malformed[label] += 1
                         continue
 
-                    category, subtype, focus, ligature = self._decomposed_fields(
+                    category, subtype, focus, degree, ligature = self._decomposed_fields(
                         item, i, label
                     )
 
@@ -124,6 +127,8 @@ class DatasetProfiler:
                         self.subtype_counter[subtype] += 1
                     if focus:
                         self.focus_counter[focus] += 1
+                    if degree:
+                        self.degree_counter[degree] += 1
                     if ligature:
                         self.ligature_count += 1
 
@@ -150,6 +155,7 @@ class DatasetProfiler:
         print(f"Unique Categories      : {len(self.category_counter)}")
         print(f"Unique Subtypes        : {len(self.subtype_counter)}")
         print(f"Unique Focus Values    : {len(self.focus_counter)}")
+        print(f"Unique Degrees         : {len(self.degree_counter)}")
 
         print()
 
@@ -197,7 +203,7 @@ class DatasetProfiler:
 
         if self.decomposition_mismatches:
             print(f"\n[!] {self.decomposition_mismatches} token(s) where stored "
-                  f"category/subtype/focus/ligature fields disagree with a fresh "
+                  f"category/subtype/focus/degree/ligature fields disagree with a fresh "
                   f"decompose() call -- check for schema drift between "
                   f"json_writer.py and mgnn_schema.py")
 
@@ -270,6 +276,13 @@ class DatasetProfiler:
             writer = csv.writer(f)
             writer.writerow(["Focus", "Count"])
             for row in self.focus_counter.most_common():
+                writer.writerow(row)
+
+        with open("degree_distribution.csv", "w", newline="", encoding="utf-8") as f:
+
+            writer = csv.writer(f)
+            writer.writerow(["Degree", "Count"])
+            for row in self.degree_counter.most_common():
                 writer.writerow(row)
 
         with open("unresolved_tags.csv", "w", newline="", encoding="utf-8") as f:

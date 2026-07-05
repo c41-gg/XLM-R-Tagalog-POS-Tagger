@@ -1,5 +1,51 @@
 import regex as re
 from modules.token_types import TaggedToken, JavaTaggedToken
+from pathlib import Path
+from datetime import datetime
+
+LOG_FILE = Path("alignment_errors.log")
+
+
+def log_alignment_error(
+    original: TaggedToken,
+    original_tokens: list[TaggedToken],
+    java_tokens: list[JavaTaggedToken],
+    i: int,
+    j: int,
+):
+    with LOG_FILE.open("a", encoding="utf-8") as f:
+
+        f.write("=" * 80 + "\n")
+        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S}\n")
+        f.write("=" * 80 + "\n")
+
+        f.write(f"Original Token : {original.token}\n")
+        f.write(f"Original Index : {i}\n")
+        f.write(f"Java Index     : {j}\n\n")
+
+        # Context around the original token
+        start = max(0, i - 5)
+        end = min(len(original_tokens), i + 6)
+
+        context = []
+
+        for k in range(start, end):
+            token = original_tokens[k].token
+
+            if k == i:
+                context.append(f">>>{token}<<<")
+            else:
+                context.append(token)
+
+        f.write("Original Context:\n")
+        f.write(" ".join(context) + "\n\n")
+
+        f.write("Remaining Java Tokens:\n")
+
+        for token in java_tokens[j:j + 15]:
+            f.write(f"{token.token:<20} {token.tag}\n")
+
+        f.write("\n")
 
 # ------------------------------------------------------------
 # Java punctuation tags
@@ -335,6 +381,14 @@ def align(
         # ----------------------------------------------------
         # Failed
         # ----------------------------------------------------
+
+        log_alignment_error(
+            original,
+            original_tokens,
+            java_tokens,
+            i,
+            j,
+        )
 
         print("=" * 60)
         print("ALIGNMENT ERROR")

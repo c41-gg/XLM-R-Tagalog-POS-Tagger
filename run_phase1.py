@@ -2,23 +2,25 @@
 Use case:
 python run_phase1.py `
   --input data/processed/corpus_clean2.txt `
-  --output data/processed/phase1_6.jsonl `
+  --output data/processed/phase1_8.jsonl `
   --java-jar Library/FSPOST/stanford-postagger.jar `
   --tagalog-model Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger `
   --batch-size 50 `
   --max-sentence-len 60 `
   --num-workers 4 `
-  --target-sentences 100
+  --target-sentences 1000
 
 """
 
 
 import argparse
+import json
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 from modules.hybrid_pos import HybridPOSTagger
+from modules.json_writer import build_entry
 
 
 def parse_args():
@@ -26,8 +28,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--input", required=True)
-    parser.add_argument("--output", default="data/processed/phase1.jsonl")
-    parser.add_argument("--log", default="logs/phase1_errors.log")
+    parser.add_argument("--output", default="data/processed/phase1_8.jsonl")
+    parser.add_argument("--log", default="logs/phase1_8_errors.log")
 
     parser.add_argument("--batch-size", type=int, default=50)
     parser.add_argument("--max-sentence-len", type=int, default=60)
@@ -89,10 +91,7 @@ def process_sentence(sentence):
 
         tokens = tagger.tag(sentence)
 
-        return {
-            "tokens": [t.token for t in tokens],
-            "labels": [t.mgnn_tag for t in tokens]
-        }
+        return build_entry(tokens)
 
     except Exception as e:
 
@@ -147,7 +146,7 @@ def main():
                     )
                     continue
 
-                out_file.write(str(result) + "\n")
+                out_file.write(json.dumps(result, ensure_ascii=False) + "\n")
 
                 processed_count += 1
 
