@@ -2,7 +2,7 @@
 Use case:
 python run_phase1.py `
   --input data/processed/corpus_clean2.txt `
-  --output data/processed/phase1_8.jsonl `
+  --output data/processed/phase1_1.jsonl `
   --java-jar Library/FSPOST/stanford-postagger.jar `
   --tagalog-model Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger `
   --batch-size 50 `
@@ -29,7 +29,7 @@ def parse_args():
 
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", default="data/processed/phase1_8.jsonl")
-    parser.add_argument("--log", default="logs/phase1_8_errors.log")
+    parser.add_argument("--log", default="logs/phase1_1_errors.log")
 
     parser.add_argument("--batch-size", type=int, default=50)
     parser.add_argument("--max-sentence-len", type=int, default=60)

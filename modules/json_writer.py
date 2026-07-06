@@ -16,7 +16,7 @@ def build_entry(tokens: list[TaggedToken]) -> dict:
     subtypes = []
     focuses = []
     degrees = []
-    ligatures = []
+    extras = []
     unresolved = []
 
     for t in tokens:
@@ -36,7 +36,7 @@ def build_entry(tokens: list[TaggedToken]) -> dict:
             subtypes.append(None)
             focuses.append(None)
             degrees.append(None)
-            ligatures.append(False)
+            extras.append(None)
             unresolved.append({
                 "index": t.index,
                 "token": t.token,
@@ -49,7 +49,7 @@ def build_entry(tokens: list[TaggedToken]) -> dict:
         subtypes.append(d.subtype)
         focuses.append(d.focus)
         degrees.append(d.degree)
-        ligatures.append(d.ligature)
+        extras.append(d.extra_subtypes)
 
         if d.extra_subtypes:
             # Same-axis stacking -- rare, but flagged per-token rather
@@ -70,7 +70,7 @@ def build_entry(tokens: list[TaggedToken]) -> dict:
         "subtypes": subtypes,
         "focuses": focuses,
         "degrees": degrees,
-        "ligatures": ligatures,
+        "extras": extras,
     }
 
     if unresolved:

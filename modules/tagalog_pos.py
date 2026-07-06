@@ -100,7 +100,7 @@ class FSPOSTTagger:
 
             command = [
                 "java",
-                "-mx1g",
+                "-mx3g",
                 "-cp",
                 self.jar_path,
                 "edu.stanford.nlp.tagger.maxent.MaxentTagger",
@@ -133,6 +133,26 @@ class FSPOSTTagger:
 
             if not success:
 
+                # align() mutates `tokens` in place as it goes, so the
+                # first token still missing an mgnn_tag is exactly where
+                # it gave up -- use that instead of guessing blind from
+                # count mismatches alone (several failures have equal
+                # input/parsed counts, meaning the desync is positional,
+                # not a length problem, and counts alone can't diagnose
+                # those).
+                failure_index = next(
+                    (t.index for t in tokens if t.mgnn_tag is None),
+                    None
+                )
+                failure_token = (
+                    tokens[failure_index].token
+                    if failure_index is not None else "?"
+                )
+
+                java_dump = " ".join(
+                    f"{jt.token}|{jt.tag}" for jt in parsed
+                )
+
                 print("\n========== ALIGNMENT ERROR ==========")
                 print("Sentence:")
                 print(sentence)
@@ -149,6 +169,21 @@ class FSPOSTTagger:
                 print(process.stdout)
 
                 print("=====================================\n")
+
+                # Previously this fell through to `return tokens` even on
+                # failure, silently shipping a partially-tagged sentence
+                # (everything after the desync point keeps mgnn_tag=None).
+                # Raise instead so run_phase1.py's existing try/except in
+                # process_sentence() routes the whole sentence to the
+                # error log, rather than writing null-tagged tokens into
+                # the dataset.
+                raise RuntimeError(
+                    f"Alignment failed at original index {failure_index} "
+                    f"(token={failure_token!r}): {len(tokens)} input tokens "
+                    f"vs {len(parsed)} parsed tokens. "
+                    f"Sentence: {sentence!r} | "
+                    f"Full Java parse: {java_dump}"
+                )
 
             return tokens
 

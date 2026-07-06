@@ -1,51 +1,5 @@
 import regex as re
 from modules.token_types import TaggedToken, JavaTaggedToken
-from pathlib import Path
-from datetime import datetime
-
-LOG_FILE = Path("alignment_errors.log")
-
-
-def log_alignment_error(
-    original: TaggedToken,
-    original_tokens: list[TaggedToken],
-    java_tokens: list[JavaTaggedToken],
-    i: int,
-    j: int,
-):
-    with LOG_FILE.open("a", encoding="utf-8") as f:
-
-        f.write("=" * 80 + "\n")
-        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S}\n")
-        f.write("=" * 80 + "\n")
-
-        f.write(f"Original Token : {original.token}\n")
-        f.write(f"Original Index : {i}\n")
-        f.write(f"Java Index     : {j}\n\n")
-
-        # Context around the original token
-        start = max(0, i - 5)
-        end = min(len(original_tokens), i + 6)
-
-        context = []
-
-        for k in range(start, end):
-            token = original_tokens[k].token
-
-            if k == i:
-                context.append(f">>>{token}<<<")
-            else:
-                context.append(token)
-
-        f.write("Original Context:\n")
-        f.write(" ".join(context) + "\n\n")
-
-        f.write("Remaining Java Tokens:\n")
-
-        for token in java_tokens[j:j + 15]:
-            f.write(f"{token.token:<20} {token.tag}\n")
-
-        f.write("\n")
 
 # ------------------------------------------------------------
 # Java punctuation tags
@@ -91,8 +45,9 @@ def normalize(text: str) -> str:
             .replace("…", "...")
             .replace("“", '"')
             .replace("”", '"')
-            
-            
+            .replace("»", '"')   # Stanford tokenizer normalizes guillemets
+            .replace("«", '"')   # to ASCII-style quote tokens ('' / ``)
+            .replace("€", "$")   # Stanford normalizes currency symbols to $
     )
 
 
@@ -226,6 +181,9 @@ def generic_merge(
         else:
             merged += piece
 
+        piece = piece.replace(" ", "")
+        merged += piece
+
         if primary_tag is None and jt.tag not in PUNCT_TAGS:
             primary_tag = jt.tag
 
@@ -244,6 +202,14 @@ def generic_merge(
 # ------------------------------------------------------------
 
 def is_emoji(token: str) -> bool:
+    # \p{Emoji} is too broad -- it also matches bare digits, '#', and '*'
+    # (they're valid *bases* for keycap emoji sequences like 2 + U+FE0F +
+    # U+20E3 -> 2⃣, so Unicode marks the bare digit itself as having the
+    # Emoji property). That meant every plain number token ("12", "1979",
+    # "6"...) was silently swallowed as EMOJI, permanently desyncing
+    # alignment for the rest of the sentence. \p{Extended_Pictographic}
+    # is the property meant for "actually looks like an emoji character"
+    # and excludes bare digits/#/*.
     return bool(re.fullmatch(r"\p{Extended_Pictographic}+", token))
 
 def ignorable(token: str):
@@ -252,6 +218,13 @@ def ignorable(token: str):
         "\u200c",
         "\u200d",
         "\ufeff",
+        "\ufffd",  # U+FFFD REPLACEMENT CHARACTER -- mojibake from a bad
+                   # upstream decode; the byte(s) it stands in for are
+                   # already lost, so there's nothing to recover here.
+                   # The Java tagger drops it entirely rather than
+                   # emitting a token for it, so treat it the same way
+                   # on our side instead of desyncing the aligner.
+        "▶",       # decorative bullet/marker, not emitted by the tagger
     }:
         return True
 
@@ -381,14 +354,6 @@ def align(
         # ----------------------------------------------------
         # Failed
         # ----------------------------------------------------
-
-        log_alignment_error(
-            original,
-            original_tokens,
-            java_tokens,
-            i,
-            j,
-        )
 
         print("=" * 60)
         print("ALIGNMENT ERROR")

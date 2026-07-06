@@ -27,7 +27,7 @@ class DatasetProfiler:
         self.subtype_counter = Counter()
         self.focus_counter = Counter()
         self.degree_counter = Counter()
-        self.ligature_count = 0
+        self.extra_counter = Counter()
 
         self.unresolved_counter = Counter()  # tag -> count of tokens hitting it
         self.unresolved_reasons = Counter()  # "unknown_part" / "same_axis_stack"
@@ -47,7 +47,7 @@ class DatasetProfiler:
 
         has_stored = all(
             key in item for key in
-            ("categories", "subtypes", "focuses", "degree", "ligatures")
+            ("categories", "subtypes", "focuses", "degree", "extras")
         )
 
         computed = decompose(label)
@@ -55,7 +55,7 @@ class DatasetProfiler:
         computed_subtype = computed.subtype
         computed_focus = computed.focus
         computed_degree = computed.degree
-        computed_ligature = computed.ligature
+        computed_extra = computed.extra
 
         if computed.unknown_parts:
             self.unresolved_reasons["unknown_part"] += 1
@@ -69,17 +69,17 @@ class DatasetProfiler:
             subtype = item["subtypes"][i]
             focus = item["focuses"][i]
             degree = item["degree"][i]
-            ligature = item["ligatures"][i]
+            extra = item["extras"][i]
 
-            if (category, subtype, focus, degree, ligature) != (
+            if (category, subtype, focus, degree, extra) != (
                 computed_category, computed_subtype,
-                computed_focus, computed_degree, computed_ligature
+                computed_focus, computed_degree, computed_extra
             ):
                 self.decomposition_mismatches += 1
 
-            return category, subtype, focus, degree, ligature
+            return category, subtype, focus, degree, extra
 
-        return computed_category, computed_subtype, computed_focus, computed_degree, computed_ligature
+        return computed_category, computed_subtype, computed_focus, computed_degree, computed_extra
 
     def profile(self):
 
@@ -117,7 +117,7 @@ class DatasetProfiler:
                         self.malformed[label] += 1
                         continue
 
-                    category, subtype, focus, degree, ligature = self._decomposed_fields(
+                    category, subtype, focus, degree, extra = self._decomposed_fields(
                         item, i, label
                     )
 
@@ -129,8 +129,8 @@ class DatasetProfiler:
                         self.focus_counter[focus] += 1
                     if degree:
                         self.degree_counter[degree] += 1
-                    if ligature:
-                        self.ligature_count += 1
+                    if extra:
+                        self.extra_counter[extra] += 1
 
     def print_report(self):
 
@@ -184,8 +184,19 @@ class DatasetProfiler:
 
         print()
 
-        ligature_pct = 100 * self.ligature_count / self.tokens if self.tokens else 0
-        print(f"Ligature-attached Tokens : {self.ligature_count:,} ({ligature_pct:.2f}%)")
+        print("Extra Tag Distribution")
+        print("----------------------")
+
+        extra_total = sum(self.extra_counter.values())
+
+        if extra_total:
+
+            for extra, count in self.extra_counter.most_common():
+                pct = 100 * count / extra_total
+                print(f"{extra:8} {count:8,} ({pct:5.2f}%)")
+
+        else:
+            print("(none)")
 
         print()
 
