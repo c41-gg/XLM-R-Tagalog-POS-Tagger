@@ -49,9 +49,9 @@ def build_entry(tokens: list[TaggedToken]) -> dict:
         subtypes.append(d.subtype)
         focuses.append(d.focus)
         degrees.append(d.degree)
-        extras.append(d.extra_subtypes)
+        extras.append(d.extras)
 
-        if d.extra_subtypes:
+        if d.unknown_parts:
             # Same-axis stacking -- rare, but flagged per-token rather
             # than silently dropped so you can decide policy (keep first
             # vs. most-specific) with real examples in hand instead of

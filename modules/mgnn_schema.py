@@ -224,6 +224,7 @@ def recompose(d: DecomposedTag) -> str:
         parts.append(d.subtype)
     elif d.category and not d.focus and not d.degree:
         parts.append(d.category)
+        
     parts.extend(d.extra_subtypes)
 
     if d.focus:

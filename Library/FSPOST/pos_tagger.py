@@ -70,3 +70,18 @@ class FSPOSTTagger:
         except Exception as e:
             print(f"Error during FSPOST tagging: {e}")
             return []
+
+def main():
+    # Example usage
+    jar_path = "Library/FSPOST/stanford-postagger.jar"
+    model_path = "Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger"
+    tagger = FSPOSTTagger(jar_path, model_path)
+ 
+    tokens = [ "Na di-umano'y", "pagkakasangkot", "niya", "sa", "iba"]
+    tagged_tokens = tagger.tag(tokens)
+ 
+    for word, mgnn_tag in tagged_tokens:
+        print(f"{word} -> {mgnn_tag}")
+
+if __name__ == "__main__":
+    main()

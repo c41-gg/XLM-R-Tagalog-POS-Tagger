@@ -37,8 +37,13 @@ def _normalize_ellipsis(sentence: str) -> str:
     return SPACED_ELLIPSIS_PATTERN.sub("...", sentence)
 
 
+def _strip_soft_hyphens(sentence: str) -> str: # U+00AD SOFT HYPHEN
+    return sentence.replace("\u00ad", "")
+
+
 def tokenize(sentence: str) -> list[TaggedToken]:
 
+    sentence = _strip_soft_hyphens(sentence)
     sentence = _normalize_ellipsis(sentence)
     sentence = _split_contractions(sentence)
 
