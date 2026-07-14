@@ -46,4 +46,3 @@ class HybridPOSTagger:
             )
 
         return tokens
-

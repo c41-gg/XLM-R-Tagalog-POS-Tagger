@@ -3,18 +3,19 @@ Use case:
 
 python run_phase1.py `
   --input data/processed/corpus_clean2.txt `
-  --output data/processed/phase2_2.jsonl `
-  --log logs/phase2_2_errors.log `
+  --output data/processed/phase2_4.jsonl `
+  --log logs/phase2_4_errors.log `
   --java-jar Library/FSPOST/stanford-postagger.jar `
   --tagalog-model Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger `
   --batch-size 50 `
   --max-sentence-len 60 `
   --num-workers 4 `
-  --target-sentences 10000 `
+  --target-sentences 100 `
   --starting-sentence-index 0
 """
 
 import argparse
+import re
 import json
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
@@ -22,6 +23,7 @@ from pathlib import Path
 
 from modules.hybrid_pos import HybridPOSTagger
 from modules.json_writer import build_entry
+from modules.tokenizer import tokenize
 
 
 # ------------------------------------------------------------
@@ -31,7 +33,6 @@ from modules.json_writer import build_entry
 def parse_args():
 
     parser = argparse.ArgumentParser()
-
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", default="data/processed/phase2_1.jsonl")
     parser.add_argument("--log", default="logs/phase2_2_errors.log")
@@ -57,8 +58,30 @@ def parse_args():
         help="Start processing from this VALID sentence index"
     )
 
+    parser.add_argument(
+    "--append",
+    action="store_true",
+    help="Append to existing output and log files instead of overwriting them."
+    )
+
     return parser.parse_args()
 
+# ------------------------------------------------------------
+# URL filter
+# ------------------------------------------------------------
+
+URL_PATTERN = re.compile(
+    r"""
+    (?:
+        https?://[^\s]+ |
+        ftp://[^\s]+ |
+        www\.[^\s]+ |
+        [a-z]{2,6}
+        \b(?:[-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)
+    )
+    """,
+    re.IGNORECASE | re.VERBOSE,
+)
 
 # ------------------------------------------------------------
 # Load corpus
@@ -73,14 +96,12 @@ def load_sentences(path):
             if line.strip()
         ]
 
-
 # ------------------------------------------------------------
 # Sentence filter
 # ------------------------------------------------------------
 
-def is_valid(sentence, max_len):
-
-    return len(sentence.split()) <= max_len
+def is_valid(sentence: str, max_len: int) -> bool:
+    return len(tokenize(sentence)) <= max_len
 
 
 # ------------------------------------------------------------
@@ -103,11 +124,8 @@ def init_worker(java_jar, model_path):
 def process_sentence(sentence):
 
     global tagger
-
     try:
-
         tokens = tagger.tag(sentence)
-
         return build_entry(tokens)
 
     except Exception as e:
@@ -134,8 +152,7 @@ def main():
     sentences = load_sentences(args.input)
 
     sentences = [
-        s
-        for s in sentences
+        s for s in sentences
         if is_valid(s, args.max_sentence_len)
     ]
 
@@ -161,20 +178,13 @@ def main():
     print(f"Remaining sentences   : {len(sentences):,}")
     print()
 
-    Path(args.output).parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    Path(args.log).parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.log).parent.mkdir( parents=True, exist_ok=True)
 
     current_index = args.starting_sentence_index
 
-    with open(args.output, "w", encoding="utf-8") as out_file, \
-         open(args.log, "w", encoding="utf-8") as log_file:
+    with open(args.output, "a", encoding="utf-8") as out_file, \
+         open(args.log, "a", encoding="utf-8") as log_file:
 
         with ProcessPoolExecutor(
             max_workers=args.num_workers,

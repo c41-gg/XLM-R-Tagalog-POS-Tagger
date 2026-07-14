@@ -1,0 +1,56 @@
+[Sentence 1429] SUSUSPORTAHAN AT MAS LALO PANG PAGBIBIGYAN NG ATENSYON.﻿ 1 7 673 839 705 Talaksan:Pabalat para sa Pokémon White 2.png Nagtataka ako kung bakit nitong mga n agdaang araw ay hindi ako nalulungkot o kaya'y nagsasawa at napapagod sa aking trabaho!
+Error: Alignment failed at original index 12 (token='673'): 47 input tokens vs 46 parsed tokens. Sentence: "SUSUSPORTAHAN AT MAS LALO PANG PAGBIBIGYAN NG ATENSYON . \ufeff 1 7 673 839 705 Talaksan : Pabalat para sa Pokémon White 2 . png Nagtataka ako kung bakit nitong mga n agdaang araw ay hindi ako nalulungkot o kaya'y nagsasawa at napapagod sa aking trabaho !" | Full Java parse: SUSUSPORTAHAN|NNPA AT|NNPA MAS|NNPA LALO|NNPA PANG|NNPA PAGBIBIGYAN|NNP NG|NNPA ATENSYON|NNP .|PMP 1|CDB 7|CDB 705|CDB Talaksan|NNP :|PMS Pabalat|NNP para|CCT sa|CCT Pokémon|NNP White|NNP 2|CDB .|PMP png|FW Nagtataka|NNP ako|PRS kung|RBK bakit|RBQ nitong|PRO_CCP mga|DTCP n|NNC agdaang|NNC_CCP araw|NNC ay|LM hindi|RBF ako|PRS nalulungkot|VBTR o|CCT kaya|CCR '|PMS y|FW nagsasawa|VBTR at|CCA napapagod|VBTR sa|CCT aking|PRSP_CCP trabaho|NNC !|PMS
+
+[Sentence 1829] Kung paano ituring ang mga halamang-singaw aquarium isda Unguento ng halamang-singaw sa mga paa bilang isang gamutin Mga Produkto Mga Laro online › Beauty injections para sa mukha sa Irkutsk mukha cream avon anew gabi pagpapabata Multi-Care, dark circles sa ilalim ng mata sanhi sa mga kababaihan dahilan face mask ng yogurt o kulay-gatas.
+Error: Alignment failed at original index 22 (token='›'): 56 input tokens vs 56 parsed tokens. Sentence: 'Kung paano ituring ang mga halamang-singaw aquarium isda Unguento ng halamang-singaw sa mga paa bilang isang gamutin Mga Produkto Mga Laro online › Beauty injections para sa mukha sa Irkutsk mukha cream avon anew gabi pagpapabata Multi-Care , dark circles sa ilalim ng mata sanhi sa mga kababaihan dahilan face mask ng yogurt o kulay-gatas .' | Full Java parse: Kung|RBK paano|RBQ ituring|VBOF ang|DTC mga|DTCP halamang-singaw|NNC aquarium|NNC isda|NNC Unguento|NNP ng|CCB halamang-singaw|NNC sa|CCT mga|DTCP paa|NNC bilang|CCT isang|PRI_CCP gamutin|VBOF Mga|DTCP Produkto|NNP Mga|DTCP Laro|NNP online|FW '|PMS Beauty|NNP injections|FW para|CCT sa|CCT mukha|NNC sa|CCT Irkutsk|NNP mukha|NNC cream|FW avon|FW anew|FW gabi|RBW pagpapabata|VBW Multi-Care|NNP ,|PMC dark|FW circles|FW sa|CCT ilalim|JJD ng|CCB mata|NNC sanhi|NNC sa|CCT mga|DTCP kababaihan|NNC dahilan|CCR face|FW mask|FW ng|CCB yogurt|FW o|CCT kulay-gatas|NNC .|PMP
+
+[Sentence 2180] Vice Ganda, luka-luka sa pag-ibig, pero 'di syonga ANG KAPASIYAHANG HUMIHILING SA KAGALANG-GALANG JOSE DE JESUS, KALIHIM NG DEPARTMENT OF PUBLIC WORKS AND HIGHWAYS NA MASTYASAT ANG IPINAGAWA NG PAMAHALAANG DAANG BALIBAGO-TAGAYTAY.
+Error: Loading default properties from tagger Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger
+Loading POS tagger from Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger ... done [0.3 sec].
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at edu.stanford.nlp.sequences.ExactBestSequenceFinder.bestSequence(ExactBestSequenceFinder.java:129)
+	at edu.stanford.nlp.sequences.ExactBestSequenceFinder.bestSequence(ExactBestSequenceFinder.java:37)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.runTagInference(TestSentence.java:341)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.testTagInference(TestSentence.java:328)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.tagSentence(TestSentence.java:151)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagSentence(MaxentTagger.java:1044)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagCoreLabelsOrHasWords(MaxentTagger.java:1835)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagAndOutputSentence(MaxentTagger.java:1845)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1756)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1817)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1590)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1546)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.main(MaxentTagger.java:1889)
+
+
+[Sentence 4631] Hiwalay na po kami.  Main  pinay pick up girl 16 yo kinantot sa hotel sa pahubad.college pinay sex scandal porn videoPaglaya Sa Tanikala (2012) Full Movie 720p12.
+Error: Alignment failed at original index 5 (token='\ue808'): 35 input tokens vs 33 parsed tokens. Sentence: 'Hiwalay na po kami . \ue808 Main \uf138 pinay pick up girl 16 yo kinantot sa hotel sa pahubad . college pinay sex scandal porn videoPaglaya Sa Tanikala ( 2012 ) Full Movie 720p12 .' | Full Java parse: Hiwalay|JJD na|CCP po|RBS kami|PRP .|PMP Main|NNP pinay|CDB pick|FW up|FW girl|FW 16|CDB yo|NNCA kinantot|VBOF sa|CCT hotel|NNC sa|CCT pahubad|NNC .|PMP college|FW pinay|FW sex|FW scandal|FW porn|FW videoPaglaya|NNP Sa|CCT Tanikala|NNP -LRB-|NNPA 2012|CDB -RRB-|NNPA Full|NNP Movie|NNP 720p12|CDB .|PMP
+
+[Sentence 4679] Series kung saan ang pananampalataya ay nadagdagan ang kanyang dibdib v Pangalagaan ang kapaligiran, at huwag magkalat ng basura 2017-06-05 15:41:12 6392061806XX: Pagdalaw ni Dalai sa Taiwan hindi makakatulong sa pagkakaisa ng Taiwan at mainland.
+Error: Alignment failed at original index 25 (token='12'): 42 input tokens vs 42 parsed tokens. Sentence: 'Series kung saan ang pananampalataya ay nadagdagan ang kanyang dibdib v Pangalagaan ang kapaligiran , at huwag magkalat ng basura 2017-06-05 15 : 41 : 12 6392061806XX : Pagdalaw ni Dalai sa Taiwan hindi makakatulong sa pagkakaisa ng Taiwan at mainland .' | Full Java parse: Series|NNP kung|RBK saan|RBQ ang|DTC pananampalataya|NNC ay|LM nadagdagan|VBTS ang|DTC kanyang|PRSP_CCP dibdib|NNC v|CDB Pangalagaan|NNP ang|DTC kapaligiran|NNC ,|PMC at|CCA huwag|RBF magkalat|VBW ng|CCB basura|NNC 2017-06-05|CDB 15|CDB :|PMS 41|CDB :|PMS 639206180|CDB 6XX|NNP :|PMS Pagdalaw|NNP ni|DTP Dalai|NNP sa|CCT Taiwan|NNP hindi|RBF makakatulong|VBTF sa|CCT pagkakaisa|NNC ng|CCB Taiwan|NNP at|CCA mainland|FW .|PMP
+
+[Sentence 5695] Nakakatagpo kami ng mga pinakamahusay na deal sa paglipad mula sa% {airline} na walang mga bayad at komisyon.
+Error: Alignment failed at original index 12 (token='{'): 22 input tokens vs 22 parsed tokens. Sentence: 'Nakakatagpo kami ng mga pinakamahusay na deal sa paglipad mula sa % { airline } na walang mga bayad at komisyon .' | Full Java parse: Nakakatagpo|VBTR kami|PRP ng|CCB mga|DTCP pinakamahusay|JJCS_JJD na|CCP deal|FW sa|CCT paglipad|NNC mula|RBL sa|CCT %|PMS -LCB-|NNPA airline|FW -RCB-|FW na|CCP walang|VBN_CCP mga|DTCP bayad|NNC at|CCA komisyon|NNC .|PMP
+
+[Sentence 7227] At walang pag-aalinlangan, kayo ay patungo sa Allâh (I)…" (Surat al-Maida, 48).Sa isa pang ayat narito ang pahayag ng ating Panginoon: ANG MGA TUNAY NA MUSLIM AY WALANG PATID SA PAG-ALALA KAY ALLAH, AT ANG KANILANG MGA PUSO AY NAGAGALAK AT MAY TAKOT SA PAG-ALALA KAY ALLAH.
+Error: Loading default properties from tagger Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger
+Loading POS tagger from Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger ... done [0.4 sec].
+Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
+	at edu.stanford.nlp.sequences.ExactBestSequenceFinder.bestSequence(ExactBestSequenceFinder.java:129)
+	at edu.stanford.nlp.sequences.ExactBestSequenceFinder.bestSequence(ExactBestSequenceFinder.java:37)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.runTagInference(TestSentence.java:341)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.testTagInference(TestSentence.java:328)
+	at edu.stanford.nlp.tagger.maxent.TestSentence.tagSentence(TestSentence.java:151)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagSentence(MaxentTagger.java:1044)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagCoreLabelsOrHasWords(MaxentTagger.java:1835)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.tagAndOutputSentence(MaxentTagger.java:1845)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1756)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1817)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1590)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.runTagger(MaxentTagger.java:1546)
+	at edu.stanford.nlp.tagger.maxent.MaxentTagger.main(MaxentTagger.java:1889)
+
+
+[Sentence 9836] Tatlong pulis sa likod ng pagpatay kay Kian Delos Santos, nahatulan  Ping Pong para sa Pagkakaibigan ng mga Pinoy at Tsino July 20, 2017.
+Error: Alignment failed at original index 13 (token='Ping'): 28 input tokens vs 28 parsed tokens. Sentence: 'Tatlong pulis sa likod ng pagpatay kay Kian Delos Santos , nahatulan \x95 Ping Pong para sa Pagkakaibigan ng mga Pinoy at Tsino July 20 , 2017 .' | Full Java parse: Tatlong|JJN_CCP pulis|NNC sa|CCT likod|NNC ng|CCB pagpatay|NNC kay|DTP Kian|NNP Delos|NNP Santos|NNP ,|PMC nahatulan|VBTS •|PMS Ping|NNP Pong|NNP para|CCT sa|CCT Pagkakaibigan|NNP ng|CCB mga|DTCP Pinoy|NNP at|CCA Tsino|NNP July|NNP 20|CDB ,|PMC 2017|CDB .|PMP
+

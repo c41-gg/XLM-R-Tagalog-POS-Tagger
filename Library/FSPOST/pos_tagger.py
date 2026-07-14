@@ -77,7 +77,7 @@ def main():
     model_path = "Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger"
     tagger = FSPOSTTagger(jar_path, model_path)
  
-    tokens = [ "Na di-umano'y", "pagkakasangkot", "niya", "sa", "iba"]
+    tokens = [ "Na", "di-umano'y", "pagkakasangkot", "niya", "sa", "iba"]
     tagged_tokens = tagger.tag(tokens)
  
     for word, mgnn_tag in tagged_tokens:

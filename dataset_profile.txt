@@ -1,0 +1,91 @@
+============================================================
+DATASET PROFILE
+============================================================
+Sentences              : 10,000
+Tokens                 : 214,566
+Vocabulary             : 28,551
+
+Average Length         : 21.46
+Median Length          : 18
+Shortest Sentence      : 2
+Longest Sentence       : 81
+
+Unique Labels          : 156
+Unique Categories      : 12
+Unique Subtypes        : 52
+Unique Focus Values    : 5
+Unique Degrees         : 4
+Unique Extra Tags      : 3
+
+Category Distribution
+-------------------
+NN             59,368 (27.67%)
+CC             39,249 (18.29%)
+PM             25,709 (11.98%)
+VB             22,254 (10.37%)
+PR             19,797 ( 9.23%)
+RB             17,133 ( 7.98%)
+DT             15,401 ( 7.18%)
+JJ              9,822 ( 4.58%)
+CD              3,158 ( 1.47%)
+LM              2,058 ( 0.96%)
+FW                498 ( 0.23%)
+PIPELINE          119 ( 0.06%)
+
+Focus Distribution (verb-only)
+-------------------
+OF              2,975 (55.91% of focus-marked tokens)
+AF              2,159 (40.58% of focus-marked tokens)
+RF                142 ( 2.67% of focus-marked tokens)
+OB                 38 ( 0.71% of focus-marked tokens)
+OL                  7 ( 0.13% of focus-marked tokens)
+
+Focus coverage: 5,321/22,254 VB tokens carry an explicit focus tag (23.91%)
+
+Extra Tag Distribution
+----------------------
+CCP        11,260 (96.68%)
+LM            199 ( 1.71%)
+CCA           188 ( 1.61%)
+
+Unresolved Decompositions : 2 tokens across 2 distinct tag(s)
+  same_axis_stack   : 2
+  Top offending tags:
+    RBL_NNP         x1
+    RBL_NNP_NNP     x1
+
+Top 30 Labels
+-------------------
+NNC                     36967 (17.23%)
+NNP                     16279 ( 7.59%)
+CCT                     15941 ( 7.43%)
+CCB                     10112 ( 4.71%)
+PMP                      9731 ( 4.54%)
+DTC                      8135 ( 3.79%)
+PMS                      7379 ( 3.44%)
+PRS                      7078 ( 3.30%)
+PMC                      6974 ( 3.25%)
+CCP                      6758 ( 3.15%)
+JJD                      6296 ( 2.93%)
+RBI                      5329 ( 2.48%)
+DTCP                     4987 ( 2.32%)
+VBW                      4908 ( 2.29%)
+NNPA                     3678 ( 1.71%)
+VBTS                     3634 ( 1.69%)
+CCA                      3289 ( 1.53%)
+CDB                      3157 ( 1.47%)
+VBTR                     2838 ( 1.32%)
+VBOF                     2792 ( 1.30%)
+CCR                      2340 ( 1.09%)
+DTP                      2213 ( 1.03%)
+LM                       2058 ( 0.96%)
+RBW                      2034 ( 0.95%)
+PRO                      2031 ( 0.95%)
+RBF                      1928 ( 0.90%)
+VBS                      1774 ( 0.83%)
+PRI_CCP                  1733 ( 0.81%)
+VBAF                     1663 ( 0.78%)
+JJD_CCP                  1573 ( 0.73%)
+
+Rare Labels (<10)      : 45
+Malformed Labels       : None

@@ -149,7 +149,6 @@ ATOMIC_TAGS = {
     "IGNORED": ("PIPELINE", "IGNORED", None, None),
 }
 
-
 @dataclass
 class DecomposedTag:
     category: Optional[str] = None
@@ -166,12 +165,27 @@ def decompose(tag: str) -> DecomposedTag:
 
     result = DecomposedTag()
 
+    parts = tag.split("_")  
+
+    is_negative_adj = (
+            "RBF" in parts and
+            any(
+                ATOMIC_TAGS[p][0] == "JJ"
+                for p in parts
+                if p in ATOMIC_TAGS
+            )
+        )
+
     for part in tag.split("_"):
         if part not in ATOMIC_TAGS:
             result.unknown_parts.append(part)
             continue
 
         category, subtype, focus, degree = ATOMIC_TAGS[part]
+        
+        if part == "RBF" and is_negative_adj:
+            result.degree = "NEG"
+            continue
 
         if part in EXTRA_TAGS and result.category is not None:
             result.extras.append(part)

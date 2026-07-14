@@ -1,6 +1,5 @@
-import regex as re
 from modules.token_types import TaggedToken, JavaTaggedToken
-
+import unicodedata
 # ------------------------------------------------------------
 # Java punctuation tags
 # ------------------------------------------------------------
@@ -24,34 +23,42 @@ SECONDARY_TAGS = {
     "s": "PRSP",  # 's
 }
 
-
 # ------------------------------------------------------------
 # Normalization
 # ------------------------------------------------------------
 
+NORMALIZATION_MAP = {
+     "-lrb-": "(",
+    "-rrb-": ")",
+    "-lsb-": "[",
+    "-rsb-": "]",
+    "``": '"',
+    "''": '"',
+    "`": "'",
+    "’": "'",
+    "‘": "'",
+    "…": "...",
+    "“": '"',
+    "”": '"',
+    "»": '"',
+    "«": '"',
+    "€": "$",
+    "£": "#"}
+
 def normalize(text: str) -> str:
+    text = text.lower()
+    
+    for old, new in NORMALIZATION_MAP.items():
+        text = text.replace(old, new)
+    
+    if len(text) == 1:
+        if unicodedata.category(text) == "No" and not unicodedata.numeric(text.encode("utf-8")).is_integer():
+            text = unicodedata.normalize("NFKC", text).replace("\u2044", "/")
 
-    return (
-        text.lower()
-            .replace("-lrb-", "(")
-            .replace("-rrb-", ")")
-            .replace("-lsb-", "[")
-            .replace("-rsb-", "]")
-            .replace("``", "\"")
-            .replace("''", "\"")
-            .replace("`", "'")
-            .replace("’", "'")
-            .replace("‘", "'")
-            .replace("…", "...")
-            .replace("“", '"')
-            .replace("”", '"')
-            .replace("»", '"')   # Stanford tokenizer normalizes guillemets
-            .replace("«", '"')   # to ASCII-style quote tokens ('' / ``)
-            .replace("€", "$")   # Stanford normalizes currency symbols to $
-    )
+        if unicodedata.category(text) == "Nl" and unicodedata.name(text.encode("utf-8"), "").startswith("ROMAN NUMERAL"):
+            text = unicodedata.normalize('NFKC', text)
 
-
-
+    return text
 # ------------------------------------------------------------
 # Rule 1
 # WORD + ' + t
@@ -70,6 +77,9 @@ def contraction_rule(
     first = java_tokens[j]
     second = java_tokens[j + 1]
     third = java_tokens[j + 2]
+    print(first.token, first.tag)
+    print(second.token, second.tag)
+    print(third.token, third.tag)
 
     if normalize(second.token) != "'":
         return None
@@ -91,12 +101,9 @@ def contraction_rule(
     suffix_tag = SECONDARY_TAGS[suffix]
 
     tag = first.tag
-
-    if suffix_tag and "_" not in tag:
-        tag = f"{tag}_{suffix_tag}"
+    tag = f"{tag}_{suffix_tag}"
 
     return tag, j + 3
-
 
 # ------------------------------------------------------------
 # Rule 2
@@ -105,41 +112,44 @@ def contraction_rule(
 # t + ' + yak
 # etc.
 # ------------------------------------------------------------
+def dropped_vowel_rule(original: TaggedToken, java_tokens: list[JavaTaggedToken], j: int):
 
-def dropped_vowel_rule(
-    original: TaggedToken,
-    java_tokens: list[JavaTaggedToken],
-    j: int
-):
-
-    if j + 2 >= len(java_tokens):
+    if j + 1 >= len(java_tokens):
         return None
 
     first = java_tokens[j]
     second = java_tokens[j + 1]
-    third = java_tokens[j + 2]
+    second_norm = normalize(second.token)
 
-    if normalize(second.token) != "'":
-        return None
+    # 3-way: word, standalone apostrophe, separate suffix token
+    if second_norm == "'" and j + 2 < len(java_tokens):
 
-    candidate = (
-        normalize(first.token)
-        + "'"
-        + normalize(third.token)
-    )
+        third = java_tokens[j + 2]        
+        candidate = ( normalize(first.token)+ "'" + normalize(third.token))
 
-    if candidate != normalize(original.token):
-        return None
+        if candidate == normalize(original.token):
+            return first.tag, j + 3
 
-    return first.tag, j + 3
+    # 2-way: word, then apostrophe+suffix fused into one token
+    if second_norm.startswith("'"):
 
+        candidate = normalize(first.token) + second_norm
+
+        if candidate == normalize(original.token):
+            return first.tag, j + 2
+
+    return None
 
 # ------------------------------------------------------------
 # Rule 3
 # Generic merge fallback
 # ------------------------------------------------------------
 
-def leading_apostrophe_rule(original, java_tokens, j):
+def leading_apostrophe_rule(
+    original: TaggedToken,
+    java_tokens: list[JavaTaggedToken],
+    j: int,
+):
 
     if j + 1 >= len(java_tokens):
         return None
@@ -153,7 +163,6 @@ def leading_apostrophe_rule(original, java_tokens, j):
         return None
 
     return java_tokens[j + 1].tag, j + 2
-
 
 def generic_merge(
     original: TaggedToken,
@@ -173,16 +182,7 @@ def generic_merge(
         jt = java_tokens[j]
 
         piece = normalize(jt.token)
-
-        if piece in {"'", '"'}:
-            merged += piece
-        elif jt.tag in PUNCT_TAGS:
-            merged += piece
-        else:
-            merged += piece
-
-        piece = piece.replace(" ", "")
-        merged += piece
+        merged += piece.replace(" ", "")
 
         if primary_tag is None and jt.tag not in PUNCT_TAGS:
             primary_tag = jt.tag
@@ -202,37 +202,63 @@ def generic_merge(
 # ------------------------------------------------------------
 
 def is_emoji(token: str) -> bool:
-    # \p{Emoji} is too broad -- it also matches bare digits, '#', and '*'
-    # (they're valid *bases* for keycap emoji sequences like 2 + U+FE0F +
-    # U+20E3 -> 2⃣, so Unicode marks the bare digit itself as having the
-    # Emoji property). That meant every plain number token ("12", "1979",
-    # "6"...) was silently swallowed as EMOJI, permanently desyncing
-    # alignment for the rest of the sentence. \p{Extended_Pictographic}
-    # is the property meant for "actually looks like an emoji character"
-    # and excludes bare digits/#/*.
-    return bool(re.fullmatch(r"\p{Extended_Pictographic}+", token))
+    return bool(token) and all(ord(ch) > 0xFFFF for ch in token)
 
 def ignorable(token: str):
     if token in {
         "\u200b",
         "\u200c",
         "\u200d",
+        "\u200e",
+        "\u200f",
         "\ufeff",
-        "\ufffd",  # U+FFFD REPLACEMENT CHARACTER -- mojibake from a bad
-                   # upstream decode; the byte(s) it stands in for are
-                   # already lost, so there's nothing to recover here.
-                   # The Java tagger drops it entirely rather than
-                   # emitting a token for it, so treat it the same way
-                   # on our side instead of desyncing the aligner.
-        "▶",       # decorative bullet/marker, not emitted by the tagger
+        "\ufffd"
     }:
         return True
+    
+    if len(token) == 1:
+
+        cp = ord(token)
+
+        if 0x80 <= cp <= 0x9F:
+            return True
+        
+        if 0x2160 <= cp <= 0x2188:
+            return True
+        
+        if 0xFE00 <= cp <= 0xFE0F:
+            return True
+        
+        return False
 
     return False
 
 # ------------------------------------------------------------
 # Main aligner
 # ------------------------------------------------------------
+
+def apply_match(original: TaggedToken, result):
+    tag, next_j = result
+    original.mgnn_tag = tag
+    return next_j
+
+def alignment_error(
+    original: TaggedToken,
+    java_tokens: list[JavaTaggedToken],
+    j: int,
+):
+    print("=" * 60)
+    print("ALIGNMENT ERROR")
+    print("=" * 60)
+
+    print("Original token:")
+    print(original.token)
+    print()
+
+    print("Remaining Java tokens:")
+
+    for token in java_tokens[j:j + 10]:
+        print(token)
 
 def align(
     original_tokens: list[TaggedToken],
@@ -269,9 +295,7 @@ def align(
         # ----------------------------------------------------
 
         if normalize(original.token) == normalize(java_tokens[j].token):
-
             original.mgnn_tag = java_tokens[j].tag
-
             i += 1
             j += 1
             continue
@@ -281,18 +305,10 @@ def align(
         # WORD + ' + t / y
         # ----------------------------------------------------
 
-        result = contraction_rule(
-            original,
-            java_tokens,
-            j
-        )
+        result = contraction_rule(original,java_tokens,j)
 
         if result:
-
-            tag, j = result
-
-            original.mgnn_tag = tag
-
+            j = apply_match(original, result)
             i += 1
             continue
 
@@ -303,18 +319,10 @@ def align(
         # t'yak
         # ----------------------------------------------------
 
-        result = dropped_vowel_rule(
-            original,
-            java_tokens,
-            j
-        )
+        result = dropped_vowel_rule(original,java_tokens,j)
 
         if result:
-
-            tag, j = result
-
-            original.mgnn_tag = tag
-
+            j = apply_match(original, result)
             i += 1
             continue
 
@@ -323,51 +331,25 @@ def align(
         # Generic merge
         # ----------------------------------------------------
 
-        result = leading_apostrophe_rule(
-            original,
-            java_tokens,
-            j
-        )
+        result = leading_apostrophe_rule(original,java_tokens,j)
 
         if result:
-            tag, j = result
-            original.mgnn_tag = tag
+            j = apply_match(original, result)
             i += 1
             continue
 
-        result = generic_merge(
-            original,
-            java_tokens,
-            j
-        )
+        result = generic_merge(original, java_tokens,j)
 
         if result:
-
-            tag, j = result
-
-            original.mgnn_tag = tag
-
+            j = apply_match(original, result)
             i += 1
             continue
-
 
         # ----------------------------------------------------
         # Failed
         # ----------------------------------------------------
 
-        print("=" * 60)
-        print("ALIGNMENT ERROR")
-        print("=" * 60)
-
-        print("Original token:")
-        print(original.token)
-
-        print()
-
-        print("Remaining Java tokens:")
-
-        for token in java_tokens[j:j + 10]:
-            print(token)
+        alignment_error(original, java_tokens, j)
 
         return False
 
