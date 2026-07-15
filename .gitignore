@@ -3,3 +3,4 @@
 *.pyc
 *.cpython-313.pyc
 /modules/__pycache__
+/modules/.metadata

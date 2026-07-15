@@ -47,8 +47,9 @@ SPECIAL_WORD_MAPPING: dict[str, Optional[str]] = {
     "an": "DTC",
     "the":  "DTP",
     # Conjunctions
-    "and": "CCB",
-    "nor": "CCB",
+    # CCA = coordinating conjunctions; CCB = case/connective particle.
+    "and": "CCA",
+    "nor": "CCA",
     "but":  "CCT",
     "or":  "CCT" ,
     "yet": "CCT" ,
