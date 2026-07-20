@@ -2,15 +2,15 @@
 Use case:
 
 python run_phase1.py `
-  --input data/processed/corpus_clean2.txt `
-  --output data/processed/phase2_4.jsonl `
-  --log logs/phase2_4_errors.log `
+  --input data/processed/cleaned_CCB.txt `
+  --output data/processed/phase2_3.jsonl `
+  --log logs/phase2_3_errors.log `
   --java-jar Library/FSPOST/stanford-postagger.jar `
   --tagalog-model Library/FSPOST/filipino-left5words-owlqn2-distsim-pref6-inf2.tagger `
   --batch-size 50 `
   --max-sentence-len 60 `
   --num-workers 4 `
-  --target-sentences 100 `
+  --target-sentences 3 `
   --starting-sentence-index 0
 """
 

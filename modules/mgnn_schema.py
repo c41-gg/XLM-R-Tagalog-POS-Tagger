@@ -46,6 +46,7 @@ EXTRA_TAGS = {
     "CCA",     # attached "at"
     "LM",      # attached "ay"
     "PRSP",    # English possessive 's
+    "CCB",      #  Noun phrase connector
 }
 
 
