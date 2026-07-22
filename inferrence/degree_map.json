@@ -1,0 +1,8 @@
+{
+  "__NULL__":0,
+  "COMP": 1,
+  "COMPEQ": 2,
+  "COMPN": 3,
+  "NEG": 4,
+  "SUP": 5
+}

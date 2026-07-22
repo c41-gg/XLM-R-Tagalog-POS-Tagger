@@ -4,3 +4,7 @@
 *.cpython-313.pyc
 /modules/__pycache__
 /modules/.metadata
+/__pycache__
+/.pytest_cache
+*/__pycache__
+*.pyc

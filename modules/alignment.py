@@ -77,9 +77,6 @@ def contraction_rule(
     first = java_tokens[j]
     second = java_tokens[j + 1]
     third = java_tokens[j + 2]
-    print(first.token, first.tag)
-    print(second.token, second.tag)
-    print(third.token, third.tag)
 
     if normalize(second.token) != "'":
         return None

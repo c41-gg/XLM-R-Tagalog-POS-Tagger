@@ -1,8 +1,8 @@
 """
 python dataset_profiler.py `
-    --input data/processed/phase2_4.jsonl `
-    --output phase2_4-profile.json `
-    --text-output phase2_4-profile.txt `
+    --input data/processed/train/phase3_clean.jsonl `
+    --output phase3-profile.json `
+    --text-output phase3-profile.txt `
 """
 import json
 import argparse
