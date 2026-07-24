@@ -8,3 +8,6 @@
 /.pytest_cache
 */__pycache__
 *.pyc
+/runs/xlmr-tl-en-pos-multihead/checkpoint-10000
+/runs/xlmr-tl-en-pos-multihead/checkpoint-5000
+*.pyc
